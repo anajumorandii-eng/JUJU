@@ -12,7 +12,10 @@ import {
 } from './data/initialData';
 
 import { TaskItem, StudySession, ReviewQuestionContext } from './types';
+import { usePersistentState } from './hooks/usePersistentState';
 import { Sidebar } from './components/Sidebar';
+import { BottomNav } from './components/BottomNav';
+import { ProfileView } from './components/ProfileView';
 import { TodayView } from './components/TodayView';
 import { StudySessionView } from './components/StudySessionView';
 import { QuestionsView } from './components/QuestionsView';
@@ -36,16 +39,16 @@ export default function App() {
   const [showDiagnostic, setShowDiagnostic] = useState<boolean>(false);
   const [showDiagnosticInvitation, setShowDiagnosticInvitation] = useState<boolean>(false);
 
-  // App Data State
-  const [user, setUser] = useState(INITIAL_USER_PROFILE);
+  // App Data State (persisted locally so progress survives a reload)
+  const [user, setUser] = usePersistentState('juju_app_user_v1', INITIAL_USER_PROFILE);
   const [subjects] = useState(INITIAL_SUBJECTS);
   const [topics] = useState(INITIAL_TOPICS);
-  const [tasks, setTasks] = useState<TaskItem[]>(INITIAL_TASKS);
-  const [errors, setErrors] = useState(INITIAL_ERRORS);
-  const [experiments, setExperiments] = useState(INITIAL_EXPERIMENTS);
+  const [tasks, setTasks] = usePersistentState<TaskItem[]>('juju_app_tasks_v1', INITIAL_TASKS);
+  const [errors, setErrors] = usePersistentState('juju_app_errors_v1', INITIAL_ERRORS);
+  const [experiments, setExperiments] = usePersistentState('juju_app_experiments_v1', INITIAL_EXPERIMENTS);
   const [discoveries] = useState(INITIAL_DISCOVERIES);
-  const [podcasts, setPodcasts] = useState(INITIAL_PODCASTS);
-  const [integrations, setIntegrations] = useState(INITIAL_INTEGRATIONS);
+  const [podcasts, setPodcasts] = usePersistentState('juju_app_podcasts_v1', INITIAL_PODCASTS);
+  const [integrations, setIntegrations] = usePersistentState('juju_app_integrations_v1', INITIAL_INTEGRATIONS);
 
   // Active Session State
   const [activeTaskForSession, setActiveTaskForSession] = useState<TaskItem | null>(null);
@@ -108,12 +111,11 @@ export default function App() {
         user={user}
         darkMode={darkMode}
         setDarkMode={setDarkMode}
-        onOpenOnboarding={() => setShowOnboarding(true)}
         onOpenDiagnostic={() => setShowDiagnostic(true)}
       />
 
       {/* Main Content Area */}
-      <main className="flex-1 overflow-y-auto">
+      <main className="flex-1 overflow-y-auto pb-16 md:pb-0">
         {activeTab === 'hoje' && (
           <TodayView
             user={user}
@@ -252,7 +254,21 @@ export default function App() {
             onStudyMaterial={handleStudyMaterial}
           />
         )}
+
+        {activeTab === 'perfil' && (
+          <ProfileView
+            user={user}
+            darkMode={darkMode}
+            setDarkMode={setDarkMode}
+            onOpenOnboarding={() => setShowOnboarding(true)}
+            onOpenDiagnostic={() => setShowDiagnostic(true)}
+            onNavigateTab={setActiveTab}
+          />
+        )}
       </main>
+
+      {/* Mobile Primary Navigation */}
+      <BottomNav activeTab={activeTab} setActiveTab={setActiveTab} />
 
       {/* Onboarding Diagnostic Modal */}
       {showOnboarding && (

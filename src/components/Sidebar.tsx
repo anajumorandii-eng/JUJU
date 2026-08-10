@@ -8,7 +8,6 @@ interface SidebarProps {
   user: UserProfile;
   darkMode: boolean;
   setDarkMode: (val: boolean) => void;
-  onOpenOnboarding: () => void;
   onOpenDiagnostic: () => void;
 }
 
@@ -18,7 +17,6 @@ export const Sidebar: React.FC<SidebarProps> = ({
   user,
   darkMode,
   setDarkMode,
-  onOpenOnboarding,
   onOpenDiagnostic,
 }) => {
   const navItems = [
@@ -33,10 +31,11 @@ export const Sidebar: React.FC<SidebarProps> = ({
     { id: 'laboratorio', label: 'Laboratório & Métodos', icon: 'FlaskConical' },
     { id: 'evolucao', label: 'Evolução & Domínio', icon: 'TrendingUp' },
     { id: 'conexoes', label: 'Conexões Google', icon: 'Link2' },
+    { id: 'perfil', label: 'Perfil', icon: 'User' },
   ];
 
   return (
-    <aside className="w-64 bg-slate-900 border-r border-slate-800 flex flex-col justify-between h-screen sticky top-0 text-slate-200 select-none">
+    <aside className="hidden md:flex md:flex-col w-64 bg-slate-900 border-r border-slate-800 justify-between h-screen sticky top-0 text-slate-200 select-none">
       <div>
         {/* Brand Header */}
         <div className="p-5 border-b border-slate-800 flex items-center justify-between">
@@ -71,7 +70,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
               </div>
             </div>
             <button
-              onClick={onOpenOnboarding}
+              onClick={() => setActiveTab('perfil')}
               className="text-[10px] px-2 py-1 bg-slate-700 hover:bg-slate-600 text-slate-300 rounded font-medium transition"
             >
               Perfil
