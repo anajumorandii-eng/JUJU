@@ -13,6 +13,7 @@ import {
 
 import { TaskItem, StudySession, ReviewQuestionContext } from './types';
 import { usePersistentState } from './hooks/usePersistentState';
+import { studySessionRepository } from './services/studySessionRepository';
 import { Sidebar } from './components/Sidebar';
 import { BottomNav } from './components/BottomNav';
 import { ProfileView } from './components/ProfileView';
@@ -72,7 +73,8 @@ export default function App() {
     setActiveTab('estudar');
   };
 
-  const handleCompleteSession = (_session: StudySession) => {
+  const handleCompleteSession = (session: StudySession) => {
+    studySessionRepository.saveSession(session);
     if (activeTaskForSession) {
       setTasks(prev => prev.map(t => t.id === activeTaskForSession.id ? { ...t, status: 'completed' } : t));
     }
@@ -147,6 +149,7 @@ export default function App() {
 
         {activeTab === 'estudar' && (
           <StudySessionView
+            userId={user.id}
             currentTask={activeTaskForSession}
             subjects={subjects}
             onCompleteSession={handleCompleteSession}

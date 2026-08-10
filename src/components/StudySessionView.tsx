@@ -3,6 +3,7 @@ import { TaskItem, StudySession, Subject, EnergyLevel } from '../types';
 import { Icon } from './Icon';
 
 interface StudySessionViewProps {
+  userId: string;
   currentTask: TaskItem | null;
   subjects: Subject[];
   onCompleteSession: (session: StudySession) => void;
@@ -10,6 +11,7 @@ interface StudySessionViewProps {
 }
 
 export const StudySessionView: React.FC<StudySessionViewProps> = ({
+  userId,
   currentTask,
   subjects,
   onCompleteSession,
@@ -54,6 +56,7 @@ export const StudySessionView: React.FC<StudySessionViewProps> = ({
     const actualMins = Math.max(1, Math.round(seconds / 60));
     const newSession: StudySession = {
       id: `sess_${Date.now()}`,
+      userId,
       taskId: currentTask?.id,
       subjectId: currentTask?.subjectId || 'mat',
       topicId: currentTask?.topicId,

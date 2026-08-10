@@ -19,7 +19,8 @@
     "test:efficiency-integration": "tsx src/services/efficiencyDecisionOrchestrator.test.ts",
     "test:efficiency-action": "tsx src/services/efficiencyActionResolver.test.ts",
     "test:app-state": "tsx src/services/appStateStore.test.ts",
-    "test": "npm run test:diagnostic && npm run test:questions && npm run test:mastery && npm run test:reviews && npm run test:presentation && npm run test:efficiency && npm run test:efficiency-integration && npm run test:efficiency-action && npm run test:app-state"
+    "test:study-session": "tsx src/services/studySessionRepository.test.ts",
+    "test": "npm run test:diagnostic && npm run test:questions && npm run test:mastery && npm run test:reviews && npm run test:presentation && npm run test:efficiency && npm run test:efficiency-integration && npm run test:efficiency-action && npm run test:app-state && npm run test:study-session"
   },
   "dependencies": {
     "@google/genai": "^2.4.0",

@@ -293,6 +293,7 @@ export interface ErrorEntry {
 
 export interface StudySession {
   id: string;
+  userId: string;
   taskId?: string;
   subjectId: string;
   topicId?: string;
