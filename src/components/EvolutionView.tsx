@@ -3,6 +3,7 @@ import { Subject, TopicNode, UserProfile, MasteryState, MasteryStatus } from '..
 import { Icon } from './Icon';
 import { learningEvidenceRepository } from '../services/questionRepository';
 import { computeAllMasteryStates } from '../services/masteryEngine';
+import { studySessionRepository } from '../services/studySessionRepository';
 
 interface EvolutionViewProps {
   user: UserProfile;
@@ -30,6 +31,18 @@ export const EvolutionView: React.FC<EvolutionViewProps> = ({
       evidences,
     });
   }, [user.id, topics, evidences]);
+
+  // Load real study session history (self-reported reflections, separate from evidence-based mastery)
+  const studySessions = useMemo(() => {
+    return studySessionRepository
+      .getSessionsByUser(user.id)
+      .slice()
+      .sort((a, b) => new Date(b.completedAt).getTime() - new Date(a.completedAt).getTime());
+  }, [user.id]);
+
+  const SESSION_HISTORY_LIMIT = 8;
+  const [showAllSessions, setShowAllSessions] = useState(false);
+  const visibleSessions = showAllSessions ? studySessions : studySessions.slice(0, SESSION_HISTORY_LIMIT);
 
   const getStatusBadge = (status: MasteryStatus) => {
     switch (status) {
@@ -258,6 +271,86 @@ export const EvolutionView: React.FC<EvolutionViewProps> = ({
             );
           })}
         </div>
+      </div>
+
+      {/* Study Session History (self-report, kept separate from evidence-based mastery above) */}
+      <div className="space-y-4">
+        <div>
+          <h3 className="font-bold text-base text-white flex items-center gap-2">
+            <Icon name="History" className="text-emerald-400" size={20} />
+            <span>Histórico de Sessões de Estudo</span>
+          </h3>
+          <p className="text-[11px] text-slate-500 mt-1">
+            Autorrelato pós-sessão. Não altera as estimativas de domínio acima — domínio depende de evidência objetiva (questões e revisões), não de autopercepção.
+          </p>
+        </div>
+
+        {studySessions.length === 0 ? (
+          <div className="p-5 rounded-2xl bg-slate-900 border border-slate-800 text-xs text-slate-400">
+            Você ainda não concluiu nenhuma sessão de estudo registrada. Sessões concluídas em "Sessão de Estudo" aparecerão aqui com sua reflexão pós-estudo.
+          </div>
+        ) : (
+          <div className="space-y-2.5">
+            {visibleSessions.map((session) => {
+              const subj = subjects.find((s) => s.id === session.subjectId);
+              const topic = topics.find((t) => t.id === session.topicId);
+              const completedDate = new Date(session.completedAt);
+
+              return (
+                <div
+                  key={session.id}
+                  className="p-4 rounded-xl bg-slate-900 border border-slate-800 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs"
+                >
+                  <div className="space-y-1 min-w-0">
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <span
+                        className="text-[10px] font-bold px-2 py-0.5 rounded-md uppercase"
+                        style={{ backgroundColor: `${subj?.color || '#3b82f6'}20`, color: subj?.color || '#3b82f6' }}
+                      >
+                        {subj?.name || 'Geral'}
+                      </span>
+                      {topic && (
+                        <span className="text-[10px] font-semibold text-slate-400">{topic.name}</span>
+                      )}
+                      <span className="text-[10px] text-slate-500">
+                        {completedDate.toLocaleDateString('pt-BR')}
+                      </span>
+                    </div>
+                    <p className="text-slate-300">
+                      {session.actualMinutes} min estudados (meta: {session.plannedMinutes} min)
+                      {session.notes && <span className="text-slate-500"> — "{session.notes}"</span>}
+                    </p>
+                  </div>
+
+                  <div className="flex items-center gap-2 shrink-0">
+                    <span
+                      className={`text-[10px] font-bold px-2 py-0.5 rounded-md border ${
+                        session.canExplain
+                          ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20'
+                          : 'bg-amber-500/10 text-amber-400 border-amber-500/20'
+                      }`}
+                    >
+                      {session.canExplain ? 'Consegue explicar' : 'Ainda não explica sozinho'}
+                    </span>
+                    <span className="text-[10px] font-bold px-2 py-0.5 rounded-md bg-slate-800 text-slate-300 border border-slate-700">
+                      Compreensão {session.comprehensionScore}/5
+                    </span>
+                  </div>
+                </div>
+              );
+            })}
+
+            {studySessions.length > SESSION_HISTORY_LIMIT && (
+              <button
+                type="button"
+                onClick={() => setShowAllSessions((prev) => !prev)}
+                className="w-full py-2 rounded-xl bg-slate-900 hover:bg-slate-800 border border-slate-800 text-slate-400 hover:text-slate-200 text-xs font-semibold transition"
+              >
+                {showAllSessions ? 'Mostrar menos' : `Mostrar todas (${studySessions.length})`}
+              </button>
+            )}
+          </div>
+        )}
       </div>
 
       {/* Modal: "POR QUE ESTE NÍVEL?" */}

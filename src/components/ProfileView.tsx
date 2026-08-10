@@ -1,6 +1,7 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { UserProfile } from '../types';
 import { Icon } from './Icon';
+import { studySessionRepository } from '../services/studySessionRepository';
 
 interface ProfileViewProps {
   user: UserProfile;
@@ -35,6 +36,11 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
   onOpenDiagnostic,
   onNavigateTab,
 }) => {
+  const sessionCount = useMemo(
+    () => studySessionRepository.getSessionsByUser(user.id).length,
+    [user.id]
+  );
+
   return (
     <div className="p-6 md:p-8 max-w-6xl mx-auto space-y-8 pb-24 md:pb-8">
       {/* Header */}
@@ -77,6 +83,27 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
           className="px-3 py-1.5 rounded-lg bg-blue-500/10 hover:bg-blue-500/20 border border-blue-500/30 text-blue-300 text-xs font-bold transition whitespace-nowrap"
         >
           {user.diagnostic?.completedAt ? 'Ver resultado' : 'Iniciar'}
+        </button>
+      </div>
+
+      {/* Study session history summary */}
+      <div className="p-4 rounded-2xl bg-slate-900 border border-slate-800 flex items-center justify-between gap-4">
+        <div className="flex items-center gap-3">
+          <Icon name="History" size={20} className="text-emerald-400" />
+          <div>
+            <p className="text-sm font-semibold text-white">Histórico de Sessões de Estudo</p>
+            <p className="text-xs text-slate-400">
+              {sessionCount === 0
+                ? 'Nenhuma sessão concluída ainda.'
+                : `${sessionCount} sessão${sessionCount === 1 ? '' : 'ões'} registrada${sessionCount === 1 ? '' : 's'} com sua reflexão pós-estudo.`}
+            </p>
+          </div>
+        </div>
+        <button
+          onClick={() => onNavigateTab('evolucao')}
+          className="px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-300 text-xs font-bold transition whitespace-nowrap"
+        >
+          Ver histórico
         </button>
       </div>
 
