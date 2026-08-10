@@ -1,0 +1,6 @@
+{
+  "name": "JUJU - Inteligência de Estudo",
+  "description": "Sistema Adaptativo de Decisão para Aprendizagem e Inteligência de Estudo.",
+  "requestFramePermissions": ["camera", "microphone"],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
